@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,13 +13,15 @@ import {
   Menu,
   X,
   Moon,
-  Sun
+  Sun,
+  LogIn
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTheme } from '@/hooks/use-theme';
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -44,6 +46,10 @@ const Navbar = () => {
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const handleSignIn = () => {
+    navigate('/signin');
   };
 
   return (
@@ -113,6 +119,15 @@ const Navbar = () => {
             aria-label="Toggle theme"
           >
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+          
+          <Button 
+            variant="outline"
+            onClick={handleSignIn}
+            className="ml-2"
+          >
+            <LogIn className="mr-2 h-4 w-4" />
+            Sign In
           </Button>
         </div>
       </div>

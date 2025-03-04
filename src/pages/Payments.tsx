@@ -1,157 +1,260 @@
 
 import React, { useState } from 'react';
+import { PaymentForm } from '@/components/payments/PaymentForm';
+import { PaymentHistory } from '@/components/payments/PaymentHistory';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { PlusCircle, Filter, Download, Receipt, CreditCard, CalendarClock } from 'lucide-react';
-import PaymentHistory from '@/components/payments/PaymentHistory';
-import PaymentForm from '@/components/payments/PaymentForm';
-import { useToast } from '@/components/ui/use-toast';
+import { Input } from '@/components/ui/input';
+import { Search, PlusCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { ResultsFilter } from '@/components/ui/results-filter';
 
-// Mock data for payment history
-const paymentHistoryData = [
-  {
-    id: '1',
-    studentName: 'Alex Johnson',
-    studentId: 'S10023',
-    amount: 500,
-    description: 'Tuition Fee - Fall Semester',
-    paymentMethod: 'Credit Card',
-    status: 'completed',
-    date: '2023-09-05T10:30:00',
-  },
-  {
-    id: '2',
-    studentName: 'Emma Wilson',
-    studentId: 'S10024',
-    amount: 250,
-    description: 'Library Fee',
-    paymentMethod: 'Bank Transfer',
-    status: 'completed',
-    date: '2023-09-03T14:45:00',
-  },
-  {
-    id: '3',
-    studentName: 'Michael Brown',
-    studentId: 'S10025',
-    amount: 350,
-    description: 'Lab Equipment Fee',
-    paymentMethod: 'Credit Card',
-    status: 'pending',
-    date: '2023-09-07T09:15:00',
-  },
-  {
-    id: '4',
-    studentName: 'Sophia Martinez',
-    studentId: 'S10026',
-    amount: 500,
-    description: 'Tuition Fee - Fall Semester',
-    paymentMethod: 'Cash',
-    status: 'completed',
-    date: '2023-09-01T11:20:00',
-  },
-  {
-    id: '5',
-    studentName: 'William Taylor',
-    studentId: 'S10027',
-    amount: 150,
-    description: 'Activity Fee',
-    paymentMethod: 'Bank Transfer',
-    status: 'failed',
-    date: '2023-09-06T15:10:00',
-  },
-];
+// Define Payment type with correct status type
+interface Payment {
+  id: string;
+  studentName: string;
+  studentId: string;
+  amount: number;
+  description: string;
+  paymentMethod: string;
+  status: "completed" | "pending" | "failed";
+  date: string;
+}
 
 const Payments = () => {
-  const [activeTab, setActiveTab] = useState('history');
-  const { toast } = useToast();
+  const [view, setView] = useState('all');
+  const [showForm, setShowForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterOption, setFilterOption] = useState('all');
+  
+  // Filter options
+  const filterOptions = [
+    { value: 'all', label: 'All Payments' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'failed', label: 'Failed' },
+  ];
 
-  const handleCreatePayment = (data: any) => {
-    // In a real app, this would send data to a backend
-    console.log('Payment data submitted:', data);
-    toast({
-      title: "Payment Recorded",
-      description: `${data.studentName} - $${data.amount} for ${data.description}`,
-    });
-    setActiveTab('history');
+  // Handle filter change
+  const handleFilterChange = (option: string) => {
+    setFilterOption(option);
+  };
+
+  // Example payments data with correct status types
+  const payments: Payment[] = [
+    {
+      id: 'PAY-001',
+      studentName: 'John Doe',
+      studentId: 'STU-123',
+      amount: 500,
+      description: 'Tuition Fee - Fall Semester',
+      paymentMethod: 'Credit Card',
+      status: 'completed',
+      date: '2023-11-10T08:30:00'
+    },
+    {
+      id: 'PAY-002',
+      studentName: 'Jane Smith',
+      studentId: 'STU-456',
+      amount: 150,
+      description: 'Lab Equipment Fee',
+      paymentMethod: 'Bank Transfer',
+      status: 'pending',
+      date: '2023-11-12T14:45:00'
+    },
+    {
+      id: 'PAY-003',
+      studentName: 'Michael Johnson',
+      studentId: 'STU-789',
+      amount: 200,
+      description: 'Library Fee',
+      paymentMethod: 'PayPal',
+      status: 'completed',
+      date: '2023-11-08T11:20:00'
+    },
+    {
+      id: 'PAY-004',
+      studentName: 'Sarah Williams',
+      studentId: 'STU-101',
+      amount: 350,
+      description: 'Exam Registration Fee',
+      paymentMethod: 'Credit Card',
+      status: 'failed',
+      date: '2023-11-05T09:15:00'
+    },
+    {
+      id: 'PAY-005',
+      studentName: 'David Brown',
+      studentId: 'STU-202',
+      amount: 180,
+      description: 'Sports Activities Fee',
+      paymentMethod: 'Cash',
+      status: 'completed',
+      date: '2023-11-14T16:50:00'
+    }
+  ];
+
+  // Filter payments based on search query, view, and filter option
+  const filteredPayments = payments.filter(payment => {
+    const matchesSearch = 
+      payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      payment.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+    
+    if (view === 'completed' && payment.status !== 'completed') return false;
+    if (view === 'pending' && payment.status !== 'pending') return false;
+    if (view === 'failed' && payment.status !== 'failed') return false;
+    
+    if (filterOption === 'completed' && payment.status !== 'completed') return false;
+    if (filterOption === 'pending' && payment.status !== 'pending') return false;
+    if (filterOption === 'failed' && payment.status !== 'failed') return false;
+    
+    return true;
+  });
+
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   return (
-    <div className="container py-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Payments</h1>
-          <p className="text-muted-foreground">
-            Manage student payments and financial records
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            className="gap-1"
-            onClick={() => window.print()}
-          >
-            <Download size={16} />
-            Export
-          </Button>
-          <Button 
-            className="gap-1"
-            onClick={() => setActiveTab('new')}
-          >
-            <PlusCircle size={16} />
-            New Payment
-          </Button>
-        </div>
+    <div className="container py-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Payments</h1>
+        <p className="text-muted-foreground">Manage student payments and transactions</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="mb-6">
-          <TabsTrigger value="history" className="gap-2">
-            <Receipt size={16} />
-            Payment History
-          </TabsTrigger>
-          <TabsTrigger value="new" className="gap-2">
-            <CreditCard size={16} />
-            Record Payment
-          </TabsTrigger>
-          <TabsTrigger value="upcoming" className="gap-2">
-            <CalendarClock size={16} />
-            Upcoming Payments
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="md:col-span-2">
+          <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search payments..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={handleSearch}
+                />
+              </div>
+              <Button onClick={toggleForm} className="sm:ml-auto">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {showForm ? "Hide Form" : "Record Payment"}
+              </Button>
+            </div>
+            <ResultsFilter
+              options={filterOptions}
+              value={filterOption}
+              onChange={handleFilterChange}
+            />
+          </div>
 
-        <TabsContent value="history">
-          <Card>
-            <CardContent className="p-6">
-              <PaymentHistory payments={paymentHistoryData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          {showForm && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Record New Payment</CardTitle>
+                <CardDescription>Enter the details for the new payment</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PaymentForm onSuccess={() => setShowForm(false)} />
+              </CardContent>
+            </Card>
+          )}
 
-        <TabsContent value="new">
-          <Card>
-            <CardContent className="p-6">
-              <PaymentForm onSubmit={handleCreatePayment} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <Tabs value={view} onValueChange={setView}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">All Payments</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+              <TabsTrigger value="pending">Pending</TabsTrigger>
+              <TabsTrigger value="failed">Failed</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="all">
+              <PaymentHistory payments={filteredPayments} />
+            </TabsContent>
+            
+            <TabsContent value="completed">
+              <PaymentHistory payments={filteredPayments.filter(p => p.status === 'completed')} />
+            </TabsContent>
+            
+            <TabsContent value="pending">
+              <PaymentHistory payments={filteredPayments.filter(p => p.status === 'pending')} />
+            </TabsContent>
+            
+            <TabsContent value="failed">
+              <PaymentHistory payments={filteredPayments.filter(p => p.status === 'failed')} />
+            </TabsContent>
+          </Tabs>
+        </div>
 
-        <TabsContent value="upcoming">
+        <div>
           <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="rounded-full bg-muted p-3">
-                  <CalendarClock className="h-6 w-6 text-muted-foreground" />
+            <CardHeader>
+              <CardTitle>Payment Summary</CardTitle>
+              <CardDescription>Overview of payment statistics</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-lg border p-3">
+                  <div className="text-sm font-medium text-muted-foreground">Total Payments</div>
+                  <div className="text-2xl font-bold">5</div>
                 </div>
-                <h3 className="mt-4 text-lg font-medium">No Upcoming Payments</h3>
-                <p className="mt-2 text-sm text-muted-foreground max-w-xs">
-                  There are no upcoming payments scheduled at this time. You can create payment schedules from the student profile.
-                </p>
+                <div className="rounded-lg border p-3">
+                  <div className="text-sm font-medium text-muted-foreground">Total Amount</div>
+                  <div className="text-2xl font-bold">$1,380</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Payment Status</div>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-md bg-green-100 dark:bg-green-900/20 p-2">
+                    <Badge variant="success">Completed</Badge>
+                    <p className="mt-1 text-lg font-semibold">3</p>
+                  </div>
+                  <div className="rounded-md bg-amber-100 dark:bg-amber-900/20 p-2">
+                    <Badge variant="warning">Pending</Badge>
+                    <p className="mt-1 text-lg font-semibold">1</p>
+                  </div>
+                  <div className="rounded-md bg-red-100 dark:bg-red-900/20 p-2">
+                    <Badge variant="destructive">Failed</Badge>
+                    <p className="mt-1 text-lg font-semibold">1</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="text-sm font-medium">Payment Methods</div>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Credit Card</span>
+                    <span className="font-medium">$850 (2)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Bank Transfer</span>
+                    <span className="font-medium">$150 (1)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">PayPal</span>
+                    <span className="font-medium">$200 (1)</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Cash</span>
+                    <span className="font-medium">$180 (1)</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
     </div>
   );
 };

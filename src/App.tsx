@@ -11,6 +11,9 @@ import Attendance from "./pages/Attendance";
 import Timetable from "./pages/Timetable";
 import Payments from "./pages/Payments";
 import ExamEnrollment from "./pages/ExamEnrollment";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/layout/Navbar";
 import PageTransition from "./components/layout/PageTransition";
@@ -21,9 +24,12 @@ const queryClient = new QueryClient();
 const AppRoutes = () => {
   const location = useLocation();
   
+  // Check if current route is an auth page
+  const isAuthPage = ['/signin', '/signup', '/forgot-password'].includes(location.pathname);
+  
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      {!isAuthPage && <Navbar />}
       <main className="flex-1">
         <PageTransition location={location.pathname}>
           <Routes>
@@ -34,6 +40,9 @@ const AppRoutes = () => {
             <Route path="/timetable" element={<Timetable />} />
             <Route path="/payments" element={<Payments />} />
             <Route path="/exam-enrollment" element={<ExamEnrollment />} />
+            <Route path="/signin" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </PageTransition>
