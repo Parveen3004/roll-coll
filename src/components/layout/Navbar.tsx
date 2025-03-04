@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Users, BookOpen, Calendar, MenuIcon, XIcon } from 'lucide-react';
+import { LayoutDashboard, Users, BookOpen, Calendar, MenuIcon, XIcon, ClipboardList } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Navbar: React.FC = () => {
@@ -14,6 +14,7 @@ const Navbar: React.FC = () => {
     { name: 'Students', path: '/students', icon: Users },
     { name: 'Classes', path: '/classes', icon: BookOpen },
     { name: 'Attendance', path: '/attendance', icon: Calendar },
+    { name: 'Timetable', path: '/timetable', icon: ClipboardList },
   ];
 
   const toggleMobileMenu = () => {

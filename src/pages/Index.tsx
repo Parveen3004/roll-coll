@@ -5,6 +5,7 @@ import AttendanceOverview from '@/components/dashboard/AttendanceOverview';
 import ClassList from '@/components/dashboard/ClassList';
 import RecentActivity from '@/components/dashboard/RecentActivity';
 import { Users, BookOpen, CalendarCheck, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data
 const stats = [
@@ -76,31 +77,41 @@ const classes = [
   },
 ];
 
-const activities = [
+type ActivityType = "check-in" | "check-out" | "absent" | "late";
+
+interface Activity {
+  id: string;
+  type: ActivityType;
+  student: { name: string; id: string; };
+  class: { name: string; id: string; };
+  timestamp: string;
+}
+
+const activities: Activity[] = [
   {
     id: '1',
-    type: 'check-in',
+    type: "check-in",
     student: { name: 'Alex Johnson', id: 'S10023' },
     class: { name: 'Computer Science 101', id: '1' },
     timestamp: 'Today at 9:15 AM'
   },
   {
     id: '2',
-    type: 'absent',
+    type: "absent",
     student: { name: 'Emma Thompson', id: 'S10045' },
     class: { name: 'Introduction to Physics', id: '2' },
     timestamp: 'Today at 10:30 AM'
   },
   {
     id: '3',
-    type: 'late',
+    type: "late",
     student: { name: 'Michael Chen', id: 'S10067' },
     class: { name: 'Advanced Mathematics', id: '3' },
     timestamp: 'Today at 11:10 AM'
   },
   {
     id: '4',
-    type: 'check-out',
+    type: "check-out",
     student: { name: 'Sophia Rivera', id: 'S10089' },
     class: { name: 'Computer Science 101', id: '1' },
     timestamp: 'Today at 12:45 PM'
@@ -108,6 +119,8 @@ const activities = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="container py-8 max-w-7xl mx-auto">
       <div className="flex flex-col gap-2 mb-8">
@@ -122,8 +135,8 @@ const Index = () => {
           <StatCard 
             key={stat.title} 
             {...stat} 
-            className="animate-slide-up"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className={`animate-slide-up`}
+            style={{ "--delay": `${index * 50}ms` } as React.CSSProperties}
           />
         ))}
       </div>
@@ -138,8 +151,19 @@ const Index = () => {
         {/* Recent Activity */}
         <RecentActivity activities={activities} />
       </div>
+
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => navigate('/timetable')}
+          className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+        >
+          <span>View Class Timetable</span>
+          <CalendarCheck size={16} />
+        </button>
+      </div>
     </div>
   );
 };
 
 export default Index;
+
