@@ -9,6 +9,8 @@ import Students from "./pages/Students";
 import Classes from "./pages/Classes";
 import Attendance from "./pages/Attendance";
 import Timetable from "./pages/Timetable";
+import Payments from "./pages/Payments";
+import ExamEnrollment from "./pages/ExamEnrollment";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/layout/Navbar";
 import PageTransition from "./components/layout/PageTransition";
@@ -29,6 +31,8 @@ const AppRoutes = () => {
             <Route path="/classes" element={<Classes />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/timetable" element={<Timetable />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/exam-enrollment" element={<ExamEnrollment />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </PageTransition>
